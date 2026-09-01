@@ -93,36 +93,9 @@ npm install          # installs dev deps in this directory only
 npm run typecheck    # tsc --noEmit
 ```
 
-## Pubblicazione
+## Publish
 
-Questo plugin può essere pubblicato in due modi principali:
+### npm (public)
 
-### 1. GitHub (raccomandato per la community opencode)
-- Push su un repo pubblico (es. `github.com/tuoutente/tab-note`).
-- Apri una segnalazione o una discussione nella sezione **Ecosystem** del sito opencode o sul Discord.
-- I mantainer possono linkare il plugin dalla docs ufficiale.
-
-### 2. npm (pubblico)
-- Rimuovi `"private": true` da `package.json` oppure cambia nome in `@tuoscope/tab-note` (se lo scope è disponibile).
-- Esegui `npm login` e `npm publish`.
-- Il `package.json` ha già `@opencode-ai/plugin` come devDep; gli utenti avranno bisogno di opencode con quel plugin installato (già il caso per l'istanza desktop).
-
-#### Esempio `package.json` modificato per npm:
-```json
-{
-  "name": "tab-note",                         // o "@tuocode/tab-note"
-  "version": "0.1.0",
-  "description": "Per-tab notes for opencode",
-  "type": "module",
-  "main": "dist/index.js",
-  "scripts": {
-    "build": "tsc",
-    "typecheck": "tsc --noEmit"
-  },
-  "devDependencies": {
-    "@opencode-ai/plugin": "1.18.15",
-    "@types/node": "^22.10.0",
-    "typescript": "^5.6.0"
-  }
-}
-```
+1. Remove `"private": true` from `package.json`.
+2. Run `npm login` then `npm publish`.
