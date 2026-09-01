@@ -7,54 +7,54 @@
 [![Node.js](https://img.shields.io/badge/Node.js-22%2B-green.svg)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org)
 
-**Session-note** è un plugin di produttività essenziale per **OpenCode** che porta memoria persistente per-tab alle tue sessioni di coding con AI. Metti facilmente in coda reminder, compiti e note per la prossima esecuzione della sessione, anche mentre l'agente OpenCode è attivamente in esecuzione.
+**Session-note** is an essential productivity plugin for **OpenCode** that brings persistent, per-tab memory to your AI coding sessions. Easily queue reminders, tasks, and notes for your next session run—even while the OpenCode agent is actively executing.
 
-## 🎯 Il Problema & La Soluzione
+## 🎯 The Problem & The Solution
 
-Quando lavori con tool di coding con AI come OpenCode, i compiti a lunga esecuzione possono impedirti di dare al agente la tua prossima istruzione, o il contesto si perde tra i riavvii della sessione.
+When working with AI coding tools like OpenCode, long-running tasks can prevent you from giving the agent your next instruction, or context gets lost between session restarts.
 
-**Session-note** risolve questo creando una coda di note dedicata per tab:
+**Session-note** solves this by creating a dedicated note queue per tab:
 
-- **Non interrompere mai il flusso di lavoro:** Aggiungi note mentre l'agente è occupato
-- **Zero Perdita di Contesto:** Le note persistono tra i riavvii della sessione e vengono automaticamente iniettate nel prompt di sistema dell'LLM
-- **Automazione Trasparente:** L'agente agisce automaticamente sulle note in sospeso non appena l'esecuzione corrente termina
+- **Never interrupt your workflow:** Add notes while the agent is busy
+- **Zero Context Loss:** Notes persist across session restarts and are automatically injected into the LLM system prompt
+- **Seamless Automation:** The agent automatically acts on pending notes as soon as the current run finishes
 
-## ✨ Caratteristiche Principali
+## ✨ Key Features
 
-- 📌 **Isolamento Per-Tab** — Ogni sessione/tab OpenCode gestisce la propria lista di note indipendente
-- 🔄 **Iniezione di Contesto Automatica** — Le note in sospeso vengono dinamicamente iniettate nel prompt di sistema ad ogni esecuzione usando i hook di OpenCode
-- 📥 **Queueing dei Compiti** — Metti in coda i compiti mentre OpenCode è occupato senza interrompere l'esecuzione corrente
-- ⚡ **Zero Dipendenze** — Integrazione pura TypeScript/Node.js che scrive rigorosamente dentro `~/.config/opencode` e `~/.local/share/opencode/Session-note`
+- 📌 **Per-Tab Isolation** — Each OpenCode session/tab manages its own independent note list
+- 🔄 **Automatic Context Injection** — Pending notes are dynamically injected into the system prompt on every run using OpenCode hooks
+- 📥 **Task Queueing** — Queue tasks while OpenCode is busy without interrupting current execution
+- ⚡ **Zero Dependencies** — Pure TypeScript/Node.js integration writing strictly inside `~/.config/opencode` and `~/.local/share/opencode/Session-note`
 
-## 🚀 Installazione
+## 🚀 Installation
 
-Installa globalmente nella tua directory di configurazione di OpenCode con un unico comando:
+Install globally into your OpenCode configuration directory with a single command:
 
 ```bash
 ./install.sh
 ```
 
-> **Nota:** Richiede solo node/npm (oppure l'auto-installer interno di OpenCode). Nessun virtual environment o pacchetti di sistema esterni necessari.
+> **Note:** Requires only node/npm (or OpenCode's internal auto-installer). No virtual environments or external system packages required.
 
-### Opzioni di Installazione
+### Installation Options
 
 ```bash
 # Upgrade / Overwrite
 ./install.sh --force
 
-# Disinstalla
+# Uninstall
 ./install.sh uninstall
 ```
 
-Dopo l'installazione, riavvia OpenCode per caricare il plugin.
+After installation, restart OpenCode to load the plugin.
 
-## 💡 Modalità di Utilizzo
+## 💡 Usage Modes
 
-Ci sono tre modi per mettere in coda note per la tua sessione OpenCode:
+There are three ways to queue notes for your OpenCode session:
 
-### 1. Slash Commands (Migliore per Queueing Mentre Occupato)
+### 1. Slash Commands (Best for Queueing While Busy)
 
-Digita i comandi slash direttamente nell'input della chat. Se l'agente sta attualmente lavorando, il comando viene messo in coda ed eseguito immediatamente dopo l'esecuzione:
+Type slash commands directly in the chat input. If the agent is currently working, the command is queued and executed immediately after the run:
 
 ```bash
 /note add fix the login redirect issue
@@ -63,45 +63,45 @@ Digita i comandi slash direttamente nell'input della chat. Se l'agente sta attua
 /note clear
 ```
 
-### 2. Prompt Markers (Note In-line Veloci)
+### 2. Prompt Markers (Quick In-line Notes)
 
-Prefissa qualsiasi messaggio con un marker (`note:`, `notes:`, `✎`, `✍`). Il plugin intercetta il prompt, archivia la nota e impedisce all'agente di trattarla come un turno di compito completo:
+Prefix any message with a marker (`note:`, `notes:`, `✎`, `✍`). The plugin intercepts the prompt, stores the note, and prevents the agent from treating it as a full task turn:
 
 ```
 note: refactor the auth middleware after you finish
 ```
 
-### 3. Direct Agent Tooling (Conversazionale)
+### 3. Direct Agent Tooling (Conversational)
 
-Parla direttamente all'agente durante la conversazione:
+Tell the agent directly during conversation:
 
 ```
 "Remember to bump the version in package.json before committing."
 ```
 
-L'agente utilizza lo strumento nativo `notes_add` per persistere la nota per la prossima esecuzione.
+The agent uses the built-in `notes_add` tool to persist it for the next run.
 
-## 🛠️ Architettura Tecnica & Come Funziona
+## 🛠️ Technical Architecture & How It Works
 
 ### Storage
 
-Le note vengono salvate come JSON in `~/.local/share/opencode/Session-note/notes.json` indicizzate per `sessionID`.
+Notes are saved as JSON at `~/.local/share/opencode/Session-note/notes.json` keyed by `sessionID`.
 
 ### System Transform Hook
 
-Utilizza `experimental.chat.system.transform` per aggiungere un blocco compatto `## Tab notes` ad ogni richiesta di sessione (limitato a 20 note, max 300 caratteri ciascuno).
+Uses `experimental.chat.system.transform` to append a compact `## Tab notes` block to every session request (capped at 20 notes, max 300 characters each).
 
 ### Hooks & Tools
 
-Ascolta l'hook `chat.message` ed espone tool LLM nativi:
+Listens on the `chat.message` hook and exposes native LLM tools:
 - `notes_add`
 - `notes_list`
 - `notes_mark_done`
 - `notes_clear`
 
-## ⚙️ Configurazione Personalizzata
+## ⚙️ Custom Configuration
 
-Puoi configurare le opzioni nel tuo `opencode.json` nella tupla del plugin:
+You can configure options in your `opencode.json` plugin tuple:
 
 ```json
 {
@@ -118,62 +118,62 @@ Puoi configurare le opzioni nel tuo `opencode.json` nella tupla del plugin:
 }
 ```
 
-### Opzioni di Configurazione
+### Configuration Options
 
-| Opzione | Tipo | Default | Descrizione |
-|---------|------|---------|-------------|
-| `dir` | string | `~/.local/share/opencode/Session-note` | Percorso assoluto personalizzato per l'archiviazione |
-| `marker` | string | `note:` | Prefisso marker per le note in-line |
-| `max_notes` | number | `20` | Numero massimo di note da iniettare nel prompt |
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `dir` | string | `~/.local/share/opencode/Session-note` | Custom absolute path for storage |
+| `marker` | string | `note:` | Prefix marker for in-line notes |
+| `max_notes` | number | `20` | Maximum number of notes to inject into the prompt |
 
-## ⚠️ Limitazioni Conosciute
+## ⚠️ Known Limitations
 
-- **Model Turns:** I comandi `/note` e marker consumano un turno minore del modello a causa del design dell'API del plugin di OpenCode (prevenzione di risposte duplicate vuote)
+- **Model Turns:** `/note` commands and markers consume a minor model turn due to OpenCode's plugin API design (preventing empty duplicate replies)
 
-- **Prefix Matching:** L'intercettazione del marker si attiva solo se il messaggio inizia con il prefisso designato (es. `note:`). Le occorrenze a metà frase vengono ignorate
+- **Prefix Matching:** Marker interception only triggers if the message starts with the designated prefix (e.g., `note:`). Mid-sentence occurrences are ignored
 
-## 👨‍💻 Sviluppo & Contributi
+## 👨‍💻 Development & Contributing
 
-### Setup dello Sviluppo
+### Development Setup
 
 ```bash
-# Installa le dipendenze di sviluppo
+# Install development dependencies
 npm install
 
-# Esegui il typecheck di TypeScript
+# Run TypeScript typecheck
 npm run typecheck
 ```
 
-### Contribuire
+### Contributing
 
-Le pull request sono benvenute! Per cambiamenti importanti, apri prima un issue per discussione.
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
 ## 📦 Publishing
 
-Per pubblicare un aggiornamento pubblico su npm:
+To publish a public update to npm:
 
-1. Assicurati che `"private": true` sia rimosso da `package.json`
+1. Ensure `"private": true` is removed from `package.json`
 
-2. Autentica e pubblica:
+2. Authenticate and publish:
 
 ```bash
 npm login
 npm publish
 ```
 
-## 📄 Licenza
+## 📄 License
 
-Distribuito sotto la Licenza MIT. Vedi [LICENSE](LICENSE) per maggiori informazioni.
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ---
 
-## 📚 Risorse
+## 📚 Resources
 
-- [Documentazione di OpenCode](https://opencode.ai)
-- [Repository GitHub](https://github.com/mydigi-code/session-notes)
+- [OpenCode Documentation](https://opencode.ai)
+- [GitHub Repository](https://github.com/mydigi-code/session-notes)
 - [Node.js Documentation](https://nodejs.org/docs)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs)
 
-## 💬 Supporto
+## 💬 Support
 
-Se riscontri problemi o hai domande, apri un [issue su GitHub](https://github.com/mydigi-code/session-notes/issues).
+If you encounter issues or have questions, please open an [issue on GitHub](https://github.com/mydigi-code/session-notes/issues).
