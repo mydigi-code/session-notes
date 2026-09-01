@@ -1,0 +1,10 @@
+TODO.md
+node_modules/
+dist/
+*.js.map
+*.d.ts
+*.log
+.env*
+*.tmp
+.vscode/
+.idea/

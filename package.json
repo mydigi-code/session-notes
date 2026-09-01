@@ -1,0 +1,15 @@
+{
+  "name": "opencode-tab-note",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Per-tab notes for opencode: write reminders of work to do at the next run, even while a session is busy.",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@opencode-ai/plugin": "1.18.15",
+    "@types/node": "^22.10.0",
+    "typescript": "^5.6.0"
+  }
+}
